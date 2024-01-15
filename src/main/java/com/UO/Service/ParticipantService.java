@@ -77,4 +77,8 @@ public class ParticipantService implements IParticipantService {
     public Page<Participant> findPage(int pageNumber) {
         return pr.findAll(PageRequest.of(pageNumber,5));
     }
+
+    public Participant updateParticipant(Participant p) {
+        return this.pr.save(p);
+    }
 }

@@ -5,6 +5,8 @@ import com.UO.Modele.Participant;
 import com.UO.Service.ConferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
@@ -52,8 +54,10 @@ public class ConferenceWeb {
     }
 
     @GetMapping("/{conferenceId}/participants")
-    public List<Participant> getParticipantsOfConference(@PathVariable Long conferenceId) {
-        return cs.getParticipantsOfConference(conferenceId);
+    public Page<Participant> getParticipantsOfConference(@PathVariable Long conferenceId,
+                                                         @RequestParam(name = "page",defaultValue = "0") int page,
+                                                         @RequestParam(name = "size",defaultValue = "4") int size) {
+        return cs.getParticipantsOfConference(conferenceId,page,size);
     }
 
     @PostMapping("/changeEtat/{conferenceId}")
@@ -63,8 +67,10 @@ public class ConferenceWeb {
     }
 
     @GetMapping("/{conferenceId}/presenteParticipants")
-    public List<Participant> getPresenteParticipantsOfConference(@PathVariable Long conferenceId) {
-        return cs.getPresenteParticipantsOfConference(conferenceId);
+    public Page<Participant> getPresenteParticipantsOfConference(@PathVariable Long conferenceId,
+                                                                 @RequestParam(name = "page",defaultValue = "0") int page,
+                                                                 @RequestParam(name = "size",defaultValue = "4") int size) {
+        return cs.getPresenteParticipantsOfConference(conferenceId,page,size);
     }
 
     @PostMapping("/marquerPresence")

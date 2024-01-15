@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -19,7 +20,8 @@ public class Conference implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
     private String titre;
-    private Date date;
+    private LocalDate date;
+
     private String conferencier;
 
     @OneToMany(mappedBy = "conference", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -31,6 +33,7 @@ public class Conference implements Serializable {
     public void addParticipation(Participation participation) {
         participations.add(participation);
         participation.setConference(this);
+
     }
 
     public void removeParticipation(Participation participation) {

@@ -30,6 +30,10 @@ public class ParticipantWeb {
     public Participant saveParticipant(@RequestBody Participant p){
         return this.ps.ajouterParticipant(p);
     }
+    @PutMapping("/updateOne")
+    public Participant updateParticipant(@RequestBody Participant p){
+        return this.ps.updateParticipant(p);
+    }
     @DeleteMapping("/delete/{id}")
     public void deleteParticipant(@PathVariable("id") Long id){
         this.ps.supprimerParticipant(id);

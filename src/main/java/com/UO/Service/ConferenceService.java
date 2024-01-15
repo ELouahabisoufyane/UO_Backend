@@ -12,9 +12,13 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +30,8 @@ import java.util.stream.Collectors;
 public class ConferenceService implements IConferenceService {
 
     final ConferenceRepository cr;
+    @Autowired
+    private SimpMessagingTemplate template;
 
     final ParticipantRepository pr;
 
@@ -91,18 +97,12 @@ public class ConferenceService implements IConferenceService {
         return this.cr.findById(id).get();
     }
 
-    public List<Participant> getParticipantsOfConference(Long conferenceId) {
 
-        Set<Participation> participations = ptr.findByConferenceId(conferenceId);
-        List<Participant> ps =new ArrayList<>();
-        for(Participation p:participations){
-            if(!p.isEtat())
-                ps.add(p.getParticipant());
-        }
-
-        return ps;
+    public Page<Participant> getParticipantsOfConference(Long conferenceId, int page, int size ) {
+        Page<Participant> participations = ptr.findByPageConferenceId(conferenceId,PageRequest.of(page, size));
+        List<Participant> ps = new ArrayList<>();
+        return participations;
     }
-
     public Conference updateConference(Conference c) {
         return  this.cr.save(c);
     }
@@ -113,23 +113,21 @@ public class ConferenceService implements IConferenceService {
 
     }
 
-    public List<Participant> getPresenteParticipantsOfConference(Long conferenceId) {
+    public Page<Participant> getPresenteParticipantsOfConference(Long conferenceId,int page, int size) {
 
-        Set<Participation> participations = ptr.findByConferenceId(conferenceId);
-        List<Participant> ps =new ArrayList<>();
-        for(Participation p:participations){
-            if(p.isEtat())
-                ps.add(p.getParticipant());
-        }
+        Page<Participant> participations= ptr.findByConferenceId(conferenceId,PageRequest.of(page, size));
 
-        return ps;
+        return participations;
     }
 
     public void marquerPresence(String rfid) {
 
+
         Participant pr =this.pr.findByRfid(rfid);
-        Conference c= this.cr.findByTitre("Java");
+        Conference c= this.cr.findByDate(LocalDate.now());
         this.changeEtat(c.getId(),pr.getId());
+
+        template.convertAndSend("/topic/presenceUpdate", "Presence Updated");
 
     }
 }
