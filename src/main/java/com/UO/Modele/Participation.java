@@ -26,6 +26,8 @@ public class Participation  {
 
     private  boolean etat=false;
 
+    private boolean how;
+
     // Constructeur(s), getters et setters
 
     @Embeddable

@@ -18,6 +18,7 @@ public class Participant implements Serializable {
     @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String civilite;
+    @Column(unique = true)
     private String rfidCardId;
     private String nom;
     private String prenom ;
@@ -27,6 +28,7 @@ public class Participant implements Serializable {
     private String adresse;
     private String commune;
     private String codepos;
+    private String ncarte;
     private String fonction;
     private double montantUFC;
     private double montantADAUO;

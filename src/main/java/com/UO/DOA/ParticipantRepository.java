@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ParticipantRepository extends JpaRepository<Participant,Long> {
     @Query("select p from Participant p where p.nom = :x")
     Participant findByName(@Param("x") String nom);
@@ -14,4 +16,6 @@ public interface ParticipantRepository extends JpaRepository<Participant,Long> {
     Page<Participant> findAllByMotCle(@Param("x") String mc, Pageable pageable);
     @Query("select p from Participant p where p.rfidCardId = :x")
     Participant findByRfid(@Param("x") String nom);
+    @Query("select p from Participant p where p.nom like  CONCAT('%',:x,'%') ")
+    List<Participant> findAllByName(@Param("x")String nom);
 }

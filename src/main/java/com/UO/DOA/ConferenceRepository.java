@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 public interface ConferenceRepository extends JpaRepository<Conference,Long> {
 
@@ -22,5 +23,7 @@ public interface ConferenceRepository extends JpaRepository<Conference,Long> {
 
     @Query("select p from Conference p where p.date= :x")
     Conference findByDate(@Param("x") LocalDate d);
+
+    List<Conference> findByDateBefore(LocalDate date);
 
 }

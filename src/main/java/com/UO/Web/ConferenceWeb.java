@@ -1,19 +1,19 @@
 package com.UO.Web;
 
+import com.UO.DOA.ConferenceRepository;
 import com.UO.Modele.Conference;
 import com.UO.Modele.Participant;
+import com.UO.Modele.Statistique;
 import com.UO.Service.ConferenceService;
+import com.UO.Service.StatistiqueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/conference")
@@ -21,10 +21,24 @@ import java.util.Set;
 public class ConferenceWeb {
     @Autowired
     private ConferenceService cs;
+    @Autowired
+    private StatistiqueService ss;
+
+    final ConferenceRepository cr;
+
+    public ConferenceWeb(ConferenceRepository cr) {
+        this.cr = cr;
+    }
 
     @PostMapping("/addOne")
     public Conference saveConference(@RequestBody Conference c){
         return this.cs.ajouterConference(c);
+    }
+    @GetMapping("/getAll")
+    public List<Conference> getAll(){
+
+        return this.cr.findAll();
+
     }
 
     @PutMapping("/update")
@@ -63,7 +77,7 @@ public class ConferenceWeb {
     @PostMapping("/changeEtat/{conferenceId}")
     public void changeEtat(@PathVariable("conferenceId") Long conferenceId,@RequestBody Long id){
 
-       this.cs.changeEtat(conferenceId,id);
+       this.cs.changeEtat(conferenceId,id,true);
     }
 
     @GetMapping("/{conferenceId}/presenteParticipants")
@@ -79,7 +93,23 @@ public class ConferenceWeb {
         String rfid = payload.get("rfid");
 
 
-        this.cs.marquerPresence(rfid);
+        this.cs.marquerPresence(rfid,false);
+
+    }
+    @GetMapping("/getByDate/{date}")
+    public  Conference getByDate(@PathVariable("date") LocalDate date) {
+        return this.cr.findByDate(date);
+
+    }
+    @GetMapping("/getConferencePasse")
+    public List<Conference> getConferencePasse(){
+        return this.cr.findByDateBefore(LocalDate.now());
+
+    }
+
+    @GetMapping("/getStatistiques")
+    public List<Statistique> getStatistique(){
+       return this.ss.getStatistique();
 
     }
 

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.core.MessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +30,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor@Transactional
 public class ConferenceService implements IConferenceService {
 
+
+
     final ConferenceRepository cr;
     @Autowired
-    private SimpMessagingTemplate template;
+    private final MessageSendingOperations<String> wsTemplate;
 
     final ParticipantRepository pr;
 
@@ -68,7 +71,7 @@ public class ConferenceService implements IConferenceService {
         if(c.getParticipations()!=null){
         for (Participant participant : participants) {
 
-                pS.addParticipation(participant, savedConference, false);
+                pS.addParticipation(participant, savedConference, false,false);
         }
 
 
@@ -107,9 +110,15 @@ public class ConferenceService implements IConferenceService {
         return  this.cr.save(c);
     }
 
-    public void changeEtat(Long conferenceId, Long id) {
+    public void changeEtat(Long conferenceId, Long id,boolean how) {
         Participation p = ptr.findByParticipantIdAndConferenceId(id,conferenceId);
-        p.setEtat(true);
+
+        if(p !=null){
+
+            p.setEtat(true);
+            p.setHow(how);
+        }
+
 
     }
 
@@ -120,14 +129,57 @@ public class ConferenceService implements IConferenceService {
         return participations;
     }
 
-    public void marquerPresence(String rfid) {
+    public void marquerPresence(String rfid,boolean how) {
 
 
         Participant pr =this.pr.findByRfid(rfid);
         Conference c= this.cr.findByDate(LocalDate.now());
-        this.changeEtat(c.getId(),pr.getId());
 
-        template.convertAndSend("/topic/presenceUpdate", "Presence Updated");
+        this.changeEtat(c.getId(),pr.getId(),how);
+
+
+        wsTemplate.convertAndSend("/socket/presenceUpdate", "soufyane");
+        System.out.println("Message sent to /topic/presenceUpdate");
+
+    }
+
+
+    public boolean verfierRfID(String id){
+        List<Participant> prs=this.pr.findAll();
+
+        boolean b=false;
+        for(Participant pp :prs){
+            if(pp.getRfidCardId()!=null){
+            if(pp.getRfidCardId().equals(id)){
+                b=true;
+            }
+        }}
+        return b;
+
+    }
+
+    public void affecterID(String rfid,Participant p) {
+
+        if(p.getRfidCardId()==null){
+                if(this.verfierRfID(rfid)){
+                    wsTemplate.convertAndSend("/socket/affected", "Le rfid est déjà affecté à un participant. Veuillez choisir une autre carte et réessayer l'opération. ");
+                    System.out.println("Message sent to /topic/affected");
+                }
+                else{
+                    p.setRfidCardId(rfid);
+                    System.out.println(p.toString());
+                    this.pr.save(p);
+                    wsTemplate.convertAndSend("/socket/affected", "bien scanner 😎 ");
+
+                }
+
+        }
+        else{
+            wsTemplate.convertAndSend("/socket/affected", "wrong");
+        }
+
+
+
 
     }
 }
