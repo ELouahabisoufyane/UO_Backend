@@ -16,6 +16,9 @@ public interface ParticipationRepesitory extends JpaRepository<Participation,Par
     @Query("select p.participant from Participation p where p.conference.id = :x AND p.etat=TRUE ")
     Page<Participant> findByConferenceId(@Param("x") Long conferenceId, Pageable pageable);
 
+    @Query("select p.participant from Participation p where p.conference.id = :x  ")
+    List<Participant> findByConferencesId(@Param("x") Long conferenceId);
+
     @Query("SELECT p FROM Participation p WHERE p.conference.id= :idConference AND p.etat = true")
     List<Participation> findParticipantsWithEtatTrue(@Param("idConference") Long idConference);
 

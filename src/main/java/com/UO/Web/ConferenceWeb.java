@@ -1,6 +1,7 @@
 package com.UO.Web;
 
 import com.UO.DOA.ConferenceRepository;
+import com.UO.DOA.ParticipationRepesitory;
 import com.UO.Modele.Conference;
 import com.UO.Modele.Participant;
 import com.UO.Modele.Statistique;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +25,11 @@ public class ConferenceWeb {
     private StatistiqueService ss;
 
     final ConferenceRepository cr;
+    final ParticipationRepesitory ptr;
 
-    public ConferenceWeb(ConferenceRepository cr) {
+    public ConferenceWeb(ConferenceRepository cr, ParticipationRepesitory ptr) {
         this.cr = cr;
+        this.ptr = ptr;
     }
 
     @PostMapping("/addOne")
@@ -68,10 +70,8 @@ public class ConferenceWeb {
     }
 
     @GetMapping("/{conferenceId}/participants")
-    public Page<Participant> getParticipantsOfConference(@PathVariable Long conferenceId,
-                                                         @RequestParam(name = "page",defaultValue = "0") int page,
-                                                         @RequestParam(name = "size",defaultValue = "4") int size) {
-        return cs.getParticipantsOfConference(conferenceId,page,size);
+    public List<Participant> getParticipantsOfConference(@PathVariable Long conferenceId) {
+        return this.ptr.findByConferencesId(conferenceId);
     }
 
     @PostMapping("/changeEtat/{conferenceId}")
