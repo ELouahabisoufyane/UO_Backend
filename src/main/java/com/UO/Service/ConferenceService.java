@@ -161,6 +161,7 @@ public class ConferenceService implements IConferenceService {
     public void affecterID(String rfid,Participant p) {
 
         if(p.getRfidCardId()==null){
+
                 if(this.verfierRfID(rfid)){
                     wsTemplate.convertAndSend("/socket/affected", "Le rfid est déjà affecté à un participant. Veuillez choisir une autre carte et réessayer l'opération. ");
                     System.out.println("Message sent to /topic/affected");
@@ -169,12 +170,25 @@ public class ConferenceService implements IConferenceService {
                     p.setRfidCardId(rfid);
                     System.out.println(p.toString());
                     this.pr.save(p);
-                    wsTemplate.convertAndSend("/socket/affected", "bien scanner 😎 ");
+                    wsTemplate.convertAndSend("/socket/affected", "bien affecter  😎 ");
 
                 }
 
         }
-        else{
+        else  if(p.getRfidCardId().isEmpty()) {
+            if(this.verfierRfID(rfid)){
+                wsTemplate.convertAndSend("/socket/affected", "Le rfid est déjà affecté à un participant. Veuillez choisir une autre carte et réessayer l'opération. ");
+                System.out.println("Message sent to /topic/affected");
+            }
+            else{
+                p.setRfidCardId(rfid);
+                System.out.println(p.toString());
+                this.pr.save(p);
+                wsTemplate.convertAndSend("/socket/affected", "bien affecter  😎 ");
+
+            }
+        }
+        else {
             wsTemplate.convertAndSend("/socket/affected", "wrong");
         }
 

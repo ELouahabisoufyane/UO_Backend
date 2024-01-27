@@ -85,7 +85,11 @@ public class ParticipantWeb {
     @DeleteMapping("/deleteTous")
     public void deleteParticipans(){
 
-        this.pr.deleteAll();
+        List<Participant> prs =this.pr.findAll();
+        for(Participant p:prs)
+            this.ps.supprimerParticipant(p.getId());
+
+        System.out.println("hi");
     }
 
 

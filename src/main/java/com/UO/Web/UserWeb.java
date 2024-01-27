@@ -1,6 +1,7 @@
 package com.UO.Web;
 
 import com.UO.DOA.UserRepository;
+import com.UO.Modele.Conference;
 import com.UO.Modele.Participant;
 import com.UO.Modele.User;
 import com.UO.Service.UserService;
@@ -39,6 +40,10 @@ public class UserWeb {
     @DeleteMapping("/delete/{id}")
     public void deleteUser(@PathVariable("id") Long id){
         this.ur.deleteById(id);
+    }
+    @PutMapping("/updateOne")
+    public User updateUser(@RequestBody User u){
+        return this.us.addUser(u);
     }
 
 }

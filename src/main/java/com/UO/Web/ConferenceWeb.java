@@ -112,6 +112,14 @@ public class ConferenceWeb {
        return this.ss.getStatistique();
 
     }
+    @DeleteMapping("/deleteTous")
+    public void deleteConferences(){
+
+        List<Conference> prs =this.cr.findAll();
+        for(Conference p:prs)
+            this.cs.supprimerConference(p.getId());
+
+    }
 
 
 
